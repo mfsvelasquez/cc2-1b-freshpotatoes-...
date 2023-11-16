@@ -885,7 +885,7 @@ We hope you enjoyed The Dungeon. 'Til next time, adventurer!
 
 m=maze()
 m.CreateMaze(pattern='a')
-a=agent(m)
+a=agent(m,)
 m.enableWASD(a)
 
 main()
