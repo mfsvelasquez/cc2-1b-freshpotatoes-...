@@ -813,12 +813,14 @@ def main():
         sys.exit()
     else:
         main()
+
 def start():
     global playername
     print("# Hi there, adventurer! What do you want us to call you? #")
     option = input("--> ")
     playername = option
     start1()
+
 def start1():
     print(f"""Hello there, {playername}. Let this be a warning to you. 
     
@@ -849,13 +851,20 @@ def help():
     A -> move left
     S -> move down
     D -> move right""")
-    print("""Got it?
-1 -> Yes
-2 -> No""")
+    print("#################################")
+    print("##   What do you want to do?   ##")
+    print("##        1 -> Play            ##")
+    print("##       2 -> Credits          ##")
+    print("##        3 -> Quit            ##")
+    print("#################################")
     option = input("--> ")
     if option == "1":
         start()
     elif option == "2":
+        credits()
+    elif option == "3":
+        sys.exit()
+    else:
         main()
 
 def credits():
@@ -871,13 +880,18 @@ The Dungeon was built by five aspiring programmers:
 We hope you enjoyed The Dungeon. 'Til next time, adventurer!
              All rights reserved
                    2023""")
-    print("What do you want to do?")
-    print("1 -> Play")
-    print("2 -> Quit")
+    print("#################################")
+    print("##   What do you want to do?   ##")
+    print("##        1 -> Play            ##")
+    print("##        2 -> Help            ##")
+    print("##        3 -> Quit            ##")
+    print("#################################")
     option = input("--> ")
     if option == "1":
         start()
     elif option == "2":
+        help()
+    elif option == "3":
         sys.exit()
     else:
         main()
