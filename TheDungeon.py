@@ -121,6 +121,8 @@ class RPGMap:
         self.enemy_y = -1
 
     def print_map(self):
+        print("P = Player")
+        print("E = Enemy")
         for row in self.map_grid:
             print(' '.join(row))
 
@@ -212,19 +214,24 @@ class Player:
         self.x += dx
         self.y += dy
 
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 main()
 rpg_map = RPGMap(20, 10)
-rpg_map.generate_maze(1, 1, 5, 35)
+rpg_map.generate_maze(1, 1, 5, 30)
 rpg_map.generate_random_map(0)
 rpg_map.place_obstacles(10)
-
 
 player = Player(1, 1)
 
 while True:
-    rpg_map.map_grid[player.y][player.x] = 'P'
-    rpg_map.print_map()
+    clear_screen()
 
+    # Set the previous player position to an empty space
+    rpg_map.map_grid[player.y][player.x] = ' '
+
+    # Update the player's position
     if (player.x, player.y) in rpg_map.enemies:
         print("You encountered an enemy!")
 
@@ -253,5 +260,6 @@ while True:
         else:
             print("You hit a wall!", flush=True)
 
-    rpg_map.map_grid[player.y][player.x] = ' '
-
+    # Print the updated map with the new player position
+    rpg_map.map_grid[player.y][player.x] = 'P'
+    rpg_map.print_map()
