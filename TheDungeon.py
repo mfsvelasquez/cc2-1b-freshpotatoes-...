@@ -2,6 +2,15 @@ import sys
 import os
 import random
 
+#to edit
+random_statements = [
+    "Beware! Trolls are lurking in the shadows.",
+    "You hear a mysterious noise echoing through the maze.",
+    "The air is thick with tension as you explore The Dungeon.",
+    "A distant howl sends shivers down your spine.",
+    "The path ahead seems treacherous. Proceed with caution."
+]
+
 def main():
     print("#################################")
     print("##   Welcome to The Dungeon!   ##")
@@ -34,7 +43,6 @@ def start():
     else:
         start1()
 
-
 def start1():
     print(f"""Hello there, {playername}. Let this be a warning to you. 
 
@@ -52,12 +60,12 @@ Good luck and may the odds be in your favor. """)
     print("2 -> No")
     option = input("--> ")
     if option == "1":
+        print_random_statement()
         RPGMap(10,10)
     elif option == "2":
         sys.exit()
     else:
         main()
-
 
 def help():
     print("""I suppose you need assistance, adventurer. In order to navigate the game
@@ -233,6 +241,10 @@ class Player:
             'Bow': {'damage': 10, 'range': 2},
         }
         self.current_weapon = 'Sword'
+        self.exp = 0
+        self.exp_to_next_level = 30
+        self.level = 1
+        self.health_regeneration_rate = 35  # Adjust as needed
 
     def move(self, dx, dy):
         self.x += dx
@@ -243,14 +255,20 @@ class Player:
         for weapon in self.weapons:
             print(f"{weapon} - Damage: {self.weapons[weapon]['damage']}")
         weapon_choice = input("Choose a weapon: ").capitalize()
-        if weapon_choice in self.weapons:
-            self.current_weapon = weapon_choice
+
+        # Use case-insensitive comparison for weapon choice
+        weapon_names_upper = [name.upper() for name in self.weapons.keys()]
+
+        if weapon_choice.upper() in weapon_names_upper:
+            # Convert the weapon choice to the actual case in the weapons dictionary
+            actual_weapon_choice = next(name for name in self.weapons.keys() if name.upper() == weapon_choice.upper())
+            self.current_weapon = actual_weapon_choice
             print(f"You selected {self.current_weapon}.")
         else:
             print("Invalid weapon. Using default weapon (Sword).")
 
     def battle_enemy(self, enemy_coordinates):
-        enemy_health = 50  # You can adjust the enemy's health as needed
+        enemy_health = 50
         print(f"You encountered an enemy at {enemy_coordinates}!")
 
         while True:
@@ -258,7 +276,6 @@ class Player:
             print(f"Current Weapon: {self.current_weapon}")
 
             battle_action = input("Enter 'A' to attack, 'C' to change weapon, or 'R' to run: ").upper()
-
             if battle_action == 'A':
                 # Calculate damage dealt and received
                 player_damage = random.randint(self.weapons[self.current_weapon]['damage'] - 5,
@@ -278,18 +295,92 @@ class Player:
                     sys.exit()
                 elif enemy_health <= 0:
                     print("You defeated the enemy!")
+
+                    exp_gained = random.randint(10, 20)
+                    print(f"You gained {exp_gained} EXP!")
+
+                    self.exp += exp_gained
+                    print(f"Total EXP: {self.exp} | Level: {self.level}")
+
+                    self.check_level_up()
+
                     rpg_map.map_grid[player.y][player.x] = 'P'
                     rpg_map.print_map()
-
-                    # Remove the defeated enemy from the list of enemies
                     rpg_map.enemies.remove(enemy_coordinates)
-
-                    # Update the enemy position
                     rpg_map.map_grid[enemy_coordinates[1]][enemy_coordinates[0]] = ' '
                     break
 
+            elif battle_action == 'C':
+                self.choose_weapon()
+
+            elif battle_action == 'R':
+                print("You ran away from the enemy.")
+                break
+
+    def check_level_up(self):
+        while self.exp >= self.level * 30:
+            self.level += 1
+            self.exp -= self.level * 30
+            print(f"Level Up! You are now level {self.level}.")
+
+        previous_health = self.current_health
+        self.max_health = 100 + (self.level - 1) * 10
+        self.current_health = min(self.current_health + self.health_regeneration_rate, self.max_health)
+
+        # Calculate the amount of health regenerated
+        health_regenerated = self.current_health - previous_health
+
+        # Print a statement when the player's health is increased
+        if health_regenerated > 0:
+            print(f"Your health increased by {health_regenerated} to {self.current_health}!")
+    
+    def battle_boss(self, boss_coordinates):
+        boss_health = 100
+        print("You are facing the Boss!")
+
+        # Increase weapon damage when facing the boss
+        for weapon in self.weapons:
+            self.weapons[weapon]['damage'] += 15  # You can adjust the damage increase as needed
+
+        while True:
+            print(f"Your Health: {self.current_health}% | Boss Health: {boss_health}%")
+            print(f"Current Weapon: {self.current_weapon} - Damage: {self.weapons[self.current_weapon]['damage']}")
+
+            battle_action = input("Enter 'A' to attack, 'C' to change weapon, or 'R' to run: ").upper()
+            if battle_action == 'A':
+                # Calculate damage dealt and received
+                player_damage = random.randint(self.weapons[self.current_weapon]['damage'] - 5,
+                                               self.weapons[self.current_weapon]['damage'] + 5)
+                boss_damage = random.randint(10, 20)
+
+                print(f"You attacked the Boss with {self.current_weapon} and dealt {player_damage} damage!")
+                print(f"The Boss attacked you and dealt {boss_damage} damage!")
+
+                # Update health
+                self.current_health -= boss_damage
+                boss_health -= player_damage
+
+                # Check for battle outcome
+                if self.current_health <= 0:
+                    print("You were defeated by the Boss. Game over.")
+                    sys.exit()
+                elif boss_health <= 0:
+                    print("Congratulations! You defeated the Boss and completed the game!")
+                    sys.exit()
+
+            elif battle_action == 'C':
+                self.choose_weapon()
+
+            elif battle_action == 'R':
+                print("You cannot run away from the Boss! Prepare for battle.")
+
+
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
+
+def print_random_statement():
+    random_statement = random.choice(random_statements)
+    print(random_statement)
 
 main()
 rpg_map = RPGMap(30, 20)
@@ -307,10 +398,30 @@ while True:
 
     # Update the player's position
     if (player.x, player.y) in rpg_map.enemies:
-        player.battle_enemy((player.x, player.y))
-    elif (player.x, player.y) == rpg_map.boss_coordinates:
-        print("You encountered the Boss!")
+        enemy_coordinates = (player.x, player.y)
+        player.battle_enemy(enemy_coordinates)
 
+     # Check if there is only one enemy left
+        if len(rpg_map.enemies) == 1:
+            print("You're almost there, " + playername + "! Keep going!")
+
+     # Check if the enemy is still present after the battle
+        if enemy_coordinates in rpg_map.enemies:
+            rpg_map.map_grid[enemy_coordinates[1]][enemy_coordinates[0]] = 'E'
+    elif (player.x, player.y) == rpg_map.boss_coordinates:
+        if player.level >= 2 and player.current_health >= 50:
+            print("You encountered the Boss!")
+            player.battle_boss(rpg_map.boss_coordinates)
+
+            # Check if the boss is still present after the battle
+            if rpg_map.boss_coordinates in rpg_map.enemies:
+                rpg_map.map_grid[rpg_map.boss_coordinates[1]][rpg_map.boss_coordinates[0]] = 'B'
+            else:
+                print("Congratulations! You defeated the Boss and completed the game!") #to edit
+                sys.exit()
+        else:
+            print("You need to be at least level 2 and have a health of at least 50 to face the Boss!")
+            
     action = input("Enter direction (W/A/S/D to move, Q to quit): ").upper()
 
     if action == 'Q':
