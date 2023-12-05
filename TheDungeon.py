@@ -82,7 +82,6 @@ def help():
     else:
         main()
 
-
 def credits():
     print("""Hello there! Thank you for visiting our simple game
 The Dungeon was built by five aspiring programmers: 
@@ -138,6 +137,7 @@ class RPGMap:
                 y = random.randint(0, self.height - 1)
 
             self.map_grid[y][x] = 'X'
+            exclude_coords.append((x, y))
 
     def generate_random_map(self, num_rooms):
         for _ in range(num_rooms):
@@ -228,10 +228,26 @@ class Player:
         self.y = y
         self.max_health = max_health
         self.current_health = max_health
+        self.weapons = {
+            'Sword': {'damage': 15},
+            'Bow': {'damage': 10, 'range': 2},
+        }
+        self.current_weapon = 'Sword'
 
     def move(self, dx, dy):
         self.x += dx
         self.y += dy
+
+    def choose_weapon(self):
+        print("Available Weapons:")
+        for weapon in self.weapons:
+            print(f"{weapon} - Damage: {self.weapons[weapon]['damage']}")
+        weapon_choice = input("Choose a weapon: ").capitalize()
+        if weapon_choice in self.weapons:
+            self.current_weapon = weapon_choice
+            print(f"You selected {self.current_weapon}.")
+        else:
+            print("Invalid weapon. Using default weapon (Sword).")
 
     def battle_enemy(self, enemy_coordinates):
         enemy_health = 50  # You can adjust the enemy's health as needed
@@ -239,15 +255,17 @@ class Player:
 
         while True:
             print(f"Your Health: {self.current_health}% | Enemy Health: {enemy_health}%")
+            print(f"Current Weapon: {self.current_weapon}")
 
-            battle_action = input("Enter 'A' to attack or 'R' to run: ").upper()
+            battle_action = input("Enter 'A' to attack, 'C' to change weapon, or 'R' to run: ").upper()
 
             if battle_action == 'A':
                 # Calculate damage dealt and received
-                player_damage = random.randint(10, 20)
+                player_damage = random.randint(self.weapons[self.current_weapon]['damage'] - 5,
+                                               self.weapons[self.current_weapon]['damage'] + 5)
                 enemy_damage = random.randint(5, 15)
 
-                print(f"You attacked the enemy and dealt {player_damage} damage!")
+                print(f"You attacked the enemy with {self.current_weapon} and dealt {player_damage} damage!")
                 print(f"The enemy attacked you and dealt {enemy_damage} damage!")
 
                 # Update health
@@ -262,21 +280,20 @@ class Player:
                     print("You defeated the enemy!")
                     rpg_map.map_grid[player.y][player.x] = 'P'
                     rpg_map.print_map()
+
+                    # Remove the defeated enemy from the list of enemies
+                    rpg_map.enemies.remove(enemy_coordinates)
+
                     # Update the enemy position
                     rpg_map.map_grid[enemy_coordinates[1]][enemy_coordinates[0]] = ' '
                     break
-            elif battle_action == 'R':
-                print("You ran away from the enemy.")
-                break
-            else:
-                print("Invalid action. Try again.")
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 main()
-rpg_map = RPGMap(20, 10)
-rpg_map.generate_maze(1, 1, 5, 80)
+rpg_map = RPGMap(30, 20)
+rpg_map.generate_maze(1, 1, 5, 120)
 rpg_map.generate_random_map(0)
 
 player = Player(1, 1, 100)
