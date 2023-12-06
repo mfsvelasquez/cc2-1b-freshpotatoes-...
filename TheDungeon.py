@@ -4,11 +4,29 @@ import random
 
 #to edit
 random_statements = [
-    "Beware! Trolls are lurking in the shadows.",
-    "You hear a mysterious noise echoing through the maze.",
-    "The air is thick with tension as you explore The Dungeon.",
-    "A distant howl sends shivers down your spine.",
-    "The path ahead seems treacherous. Proceed with caution."
+    """As the sun descended behind the mountain peaks, stretching shadows across the rugged terrain,
+the realization dawned that you had strayed from the path. Panic gripped you as the dense forest engulfed your surroundings. 
+The once familiar path became an ominous labyrinth. 
+
+In your journey, you encountered a formidable creature adorned in scales that shimmered like obsidian. 
+The creature's eyes blazed with an otherworldly fire, and its roars reverberated through the trees.
+
+Now, confronted by this monstrous adversary, the imperative arises: vanquish the creature and navigate your way back to safety. 
+In life's intricate tapestry, facing and overcoming challenges is not merely a choice but a testament to your resilience, strength, 
+and  growth.""",
+    """As the sun dipped below the horizon, you found yourself lost in a dense forest. The once-clear path became a confusing maze, 
+and panic set in. Determined to find your way back, you stumbled upon a creature covered in shimmering scales. Its fiery eyes and 
+echoing roars made it clear - you had to defeat it to get home. In life's journey, facing challenges isn't just a choice but a way 
+to prove your strength and resilience.""",
+    """Under the moon's glow, you got lost in a vast, silent wasteland. In your journey, you discovered an ancient temple and awakened 
+a spectral guardian with glowing eyes. To move forward, you must conquer the guardian's challenges and unravel the temple's secrets. 
+Facing the unknown is a testament to your courage and wisdom in life's grand tapestry.""",
+    """Lost in a city's maze of alleys, you met a mysterious figure revealing hidden secrets. As you delved into the city's mysteries, 
+a clandestine organization emerged. Navigating trust and deception became crucial. Unraveling urban mysteries showcases your wit and 
+adaptability in life's intricate tapestry.""",
+    """Continuing your exploration, you find yourself in a confusing maze where enemies lurk around every corner. Oh, dear warrior, 
+can you successfully navigate this hazardous labyrinth and emerge unscathed? May luck be in your favor as you face the challenges 
+that lie ahead."""
 ]
 
 def main():
@@ -244,7 +262,7 @@ class Player:
         self.exp = 0
         self.exp_to_next_level = 30
         self.level = 1
-        self.health_regeneration_rate = 35  # Adjust as needed
+        self.health_regeneration_rate = 30  # Adjust as needed
 
     def move(self, dx, dy):
         self.x += dx
@@ -365,7 +383,13 @@ class Player:
                     print("You were defeated by the Boss. Game over.")
                     sys.exit()
                 elif boss_health <= 0:
-                    print("Congratulations! You defeated the Boss and completed the game!")
+                    print("""After battling through the challenging dungeon, you finally face the big boss. 
+The boss is huge and powerful, making the fight intense. You dodge its attacks, find its weakness, 
+and hit back with all your might. As the battle unfolds, the boss gets weaker, and your final powerful 
+strike defeats it. The dungeon goes quiet, and you realize you've won the game. The feeling of success 
+fills you, and you return from the virtual world, proud of overcoming the challenges. Whether in the 
+game or real life, beating tough obstacles shows your strength and determination.
+Congratulations! You have successfully escaped The Dungeon!""")
                     sys.exit()
 
             elif battle_action == 'C':
@@ -384,7 +408,7 @@ def print_random_statement():
 
 main()
 rpg_map = RPGMap(30, 20)
-rpg_map.generate_maze(1, 1, 5, 120)
+rpg_map.generate_maze(1, 1, 10, 120)
 rpg_map.generate_random_map(0)
 
 player = Player(1, 1, 100)
@@ -401,19 +425,20 @@ while True:
         enemy_coordinates = (player.x, player.y)
         player.battle_enemy(enemy_coordinates)
 
-     # Check if there is only one enemy left
+        # Check if there is only one enemy left
         if len(rpg_map.enemies) == 1:
             print("You're almost there, " + playername + "! Keep going!")
 
-     # Check if the enemy is still present after the battle
+        # Check if the enemy is still present after the battle
         if enemy_coordinates in rpg_map.enemies:
             rpg_map.map_grid[enemy_coordinates[1]][enemy_coordinates[0]] = 'E'
-    elif (player.x, player.y) == rpg_map.boss_coordinates:
+
+    if (player.x, player.y) == rpg_map.boss_coordinates:
         if player.level >= 2 and player.current_health >= 50:
             print("You encountered the Boss!")
             player.battle_boss(rpg_map.boss_coordinates)
 
-            # Check if the boss is still present after the battle
+        # Check if the boss is still present after the battle
             if rpg_map.boss_coordinates in rpg_map.enemies:
                 rpg_map.map_grid[rpg_map.boss_coordinates[1]][rpg_map.boss_coordinates[0]] = 'B'
             else:
@@ -421,7 +446,9 @@ while True:
                 sys.exit()
         else:
             print("You need to be at least level 2 and have a health of at least 50 to face the Boss!")
-            
+        # Ensure the 'B' remains on the map even if conditions are not met
+            rpg_map.map_grid[rpg_map.boss_coordinates[1]][rpg_map.boss_coordinates[0]] = 'B'
+
     action = input("Enter direction (W/A/S/D to move, Q to quit): ").upper()
 
     if action == 'Q':
